@@ -1,13 +1,12 @@
 <?php
 
-$host = $_POST["host"];
-$user = $_POST["user"];
-$pass = $_POST["password"];
-$port = $_POST["port"];
+session_start();
 
-$recipeName = $_POST["recipeName"];
-$ingredientName = $_POST["ingredientName"];
-$ingredientQuantity = $_POST["ingredientQuantity"];
+$host = $_SESSION["host"];
+$user = $_SESSION["user"];
+$pass = $_SESSION["passw"];
+$port = $_SESSION["port"];
+
 
 $dbName = $user;
 
@@ -19,18 +18,27 @@ if ($conn->connect_error)
 else
         echo " connected!<br>";
 
-$queryString = "create table if not exists Recipe (RecipeName varchar(20), Ingredient varchar(20), Quantity number)";
+$queryString = "create table if not exists Recipe (RecipeName varchar(20), Ingredient varchar(20), Quantity INT);";
 
 if (! $conn->query($queryString))
-        die("Could not create table" . $conn->error());
+        echo "Dead<br>" . htmlspecialchars($conn->error);
+        //die("Could not create table" . $conn->error());
 
-$stmt = $conn->prepare("insert into Recipe values (?, ? , ?)");
-$stmt->bind_param( "ssi", $recipeName, $ingredientName, $ingredientQuantity);
+if (!$stmt = $conn->prepare("insert into Recipe values (?,?,?);"))
+        echo "Issue here" . htmlspecialchars($conn->error);
+
+$stmt->bind_param("ssi", $recipeName, $ingredientName, $ingredientQuantity);
+
+$recipeName = $_POST["recipeName"];
+$ingredientName = $_POST["ingredientName"];
+$ingredientQuantity = $_POST["ingredientQuantity"];
 
 $stmt->execute();
 
+echo "Rows changed: ".$stmt->affected_rows."<br>";
+
 $conn->close();
 
-//header('Location:/Users/cj_hess510/Desktop/Principles of Database System/Projects/Project 3/mainMenu.html');
+header("Location: /mainMenu.html")
 
 ?>
